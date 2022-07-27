@@ -1,0 +1,24 @@
+.head-line {
+    display: flex;
+    justify-content: center;
+    margin-top: 1em;    
+}
+.head-line svg {
+    max-width: 430px;
+}
+.menus {
+    display: flex;
+    justify-content: center;
+    margin-top: 1em;
+    border-top: 1px solid #ebebeb;
+    border-bottom: 4px double #000;
+}
+.menus button{
+    margin: 5px;
+    border: none;
+    background: none;
+}
+.menus button:hover {
+    background-color: beige;
+    border-radius: 5px;
+}

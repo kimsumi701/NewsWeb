@@ -1,17 +1,31 @@
 let articles = [];
-let topic = 'Sport';
+let topic = 'sport';
+let menus = document.querySelectorAll('#menu-list button');
+menus.forEach((menu) => menu.addEventListener('click', (event) => getNewsByTopic(event)));
+let searchBtn = document.getElementById('search-button');
+let url;
 
-// 숙제 : 메뉴에서 토픽이 바뀔때 뉴스 내용이 바뀌는 것 구현하기
-const getLatestNews = async () => {
-    let url = new URL(`https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=sport&page_size=10`);
+const getNews =  async () => {
     let header = new Headers({ 'x-api-key': 'LAR13o0Awny6Ob1E5M8Cgfz2pBuJVnQJLUvEvDyQ7LM' });
     let response = await fetch(url, { headers: header });
     let data = await response.json();
-    news = data.articles;
-    console.log(news);
-    render()
-    // pending : 데이터가 아직 도착하지 않은 상태
-    // async - await 세트로 써야함
+    news = data.articles;    
+    render();
+}
+const getLatestNews = async () => {
+    url = new URL(`https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=${topic}&page_size=10`);       
+    getNews();
+};
+const getNewsByTopic = (event) => {
+    topic = event.target.textContent.toLowerCase();
+    getLatestNews();
+};
+const getNewsByKeyword = async () => {
+    // 검색 키워드 읽어오기 -> url에 검색 키워드 붙이기 -> 헤더 준비
+    // -> url 부르기 -> 데이터 가져오기 -> 데이터 보여주기 ..
+    let keyword = document.getElementById('search-input').value;
+    url = new URL(`https://api.newscatcherapi.com/v2/search?q=${keyword}&countries=KR&page_size=10`);
+    getNews();
 };
 const render = () => {
     let newsHTML = '';
@@ -24,14 +38,16 @@ const render = () => {
         </div>
         <div class="col-lg-8">
             <h2>${news.title}</h2>
-            <p>${
-            news.summary == null || news.summary == '' ? '내용 없음' : news.summary.length > 200 ?
-            news.summary.substring(0, 200) + "..." : news.summary
+            <p>${news.summary == null || news.summary == '' ? '내용 없음' : news.summary.length > 200 ?
+                news.summary.substring(0, 200) + "..." : news.summary
             }</p>
             <div>${news.rights || 'No source'} * ${moment(news.published_date).fromNow()}</div>
         </div>
     </div>`
     }).join('');
     document.getElementById('news-board').innerHTML = newsHTML;
-}
+    document.getElementById('search-input').value = '';
+};
+
+searchBtn.addEventListener('click', getNewsByKeyword);
 getLatestNews();

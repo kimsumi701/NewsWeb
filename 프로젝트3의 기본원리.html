@@ -119,6 +119,96 @@
             &nbsp;  let data = await response.json() <br>
             }
         </li>
+        <li>
+            <h2>호이스팅</h2>
+            function과 var로 선언된 함수와 변수는 호이스팅이 된다. 메모리 힙에 미리 저장이 되어있게 된다. 
+            따라서 순서와 상관없이 아무데서나 부르면 호출이 가능했었지만 .. 일반 상식적으로는 말이 안되는 거긴 하다. 
+            그래서 이를 문제 삼아서 나온게 let, const이다. 선언시 호이스팅이 되어서 메모리 힙에 가 있기는 하지만, 
+            정의가 된 부분에 도달하기 전까지는 TDZ(일시적 사각지대, Temporal Dead Zone)를 만들어서 접근을 제한한다.
+            화살표 함수도 let, const를 사용하여 정의한 함수이기 때문에 TDZ의 적용을 받게 된다.
+            <br>
+            <h3>getNewsByKeyword</h3>
+            addEventLister('click', (event) => getNewsByTopic(event))는 왜 된건가? <br>
+            지금 이야기하는 getNewsByKeyword는 토픽과는 다르게 본인이 바로 불려진게 아니라 익명의 함수 안에 들어가 있는 <br>
+            모양이기 때문에, 즉, addEventListener('click', (event) => getNewsByTopic(event))를 실행할때는<br>
+            함수가 바로 쓰여진게 아니라, 익명의 함수를 쓴거기 때문에 에러가 나지 않았음 .. <br>
+            그리고 클릭을 할때에는 이미 코드를 한번 처음부터 끝까지 실행을 돌린 상태이기 때문에 토픽에 접근이 가능한 것이었음. <br>
+            addEventListener('click', (event) => getNewsByTopic(event))의 경우에는 이부분의 코드 실행시에 getNewsByKeyword가 직접적으로 호출이 되어씨 때문에, <br>
+            함수의 정의부분보다 위쪽에 있다면 접근이 불가능해지는것. <br>
+            <br>
+            <h3>요약: 화살표 함수는 정의 전에 호출할 수 없다 .. 순서가 매우 중요하다</h3>
+        </li>
+        <li>
+            <h2>코드 리팩토링</h2>
+            코드를 짤때 가장 중요한건 모로가나 도로가나 서울로 가는것! 작동되는게 가장 중요하긴 하지만, <br>
+            이왕이면 좀 더 깔끔하고, 세련되게 코드를 짜는게 좋다고 할 수 있다. 그래야지 코드의 유지보수, 확장이 쉽습니다. <br>
+            코드 작성의 기본원칙 두가지, 코드의 안전성과 코드의 확장성 확보! <br>
+            <br>
+            코드 리팩토링이 필요한 경우 : 중복되는 코드, 긴 함수 등등이 있다. <br>
+            함수는 한가지 일만 하도록 짜여져 있는 것이 좋고, 3번이상 중복이 되거나, 다른곳에서 많이 쓰여지는 코드는 <br>
+            묶어서 하나의 함수로 하는 것이 좋다. <br>
+            <br>
+            예제<br>
+            우리 프론트반의 가전회사 시스템에는 코드가 아래와 같이 작성이 되어있다. 
+            const buyTv = () => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    console.log('TV구매에 감사드립니다.') <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    console.log('프론트반 가전에 와주셔서 감사하고 항상 건강하세요!') <br>
+            } <br>
+            <br>
+            const buyAC = () => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    consol.log('TV 구매 감사드립니다.') <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    consol.log('프론트반 가전에 와주셔서 감사하고 항상 건강하세요!') <br>
+            } <br>
+            <br>
+            const buyCallphone = () => { <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    consol.log('TV 구매 감사드립니다.') <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    consol.log('프론트반 가전에 와주셔서 감사하고 항상 건강하세요!') <br>
+            } <br>
+            <br>
+            어느날, 프론트반 가전회사가 망하고 .. 다시 주니어 개발자 가전으로 회사의 이름을 바꾸게 되었다 .. <br>
+            그럼 모든 코드에 프론트반을 주니어 개발자로 바꾸어야 하는데, 지금 눈에 보이는 제품은 3개가 끝인데, 만약 확장이 잘되서 100개 10억개의 제품군이 생겨난다면? <br>
+            그리고 다시 회사의 이름이 시니어개발자 가전으로 바뀌어진다면??? 그럼 10억군데가 넘는 이름을 하나하나 바꾸어야 할까? 실수로 오타라도 난다면 ? <br>
+            상상만해도 끔찍한 상황이 아닐 수 없다. 이런 코드는 유지보수가 매우매우 힘들고, 무엇인가 더 확장하기도 어렵다. 그래서 우리는 코드를 리팩토링해야 한다. <br>
+            <br>
+            const greedMessage = () => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    console.log('프론트반 가전에 와주셔서 감사하고 항상 건강하세요!') <br>
+            } <br>
+            <br>
+            const buyTv = () => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    console.log('TV 구매에 감사드립니다.') <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    greedMessage() <br>
+            } <br>
+            const buyAC = () => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    console.log('TV 구매에 감사드립니다.') <br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    greedMessage() <br>
+            } <br>
+            const buyCallphone = () => {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;    console.log('TV 구매에 감사드립니다.') <br> 
+            &nbsp;&nbsp;&nbsp;&nbsp;    greedMessage() <br>
+            } <br>
+            위와 같으 식으로 코드를 바꾸면, 회사 이름이 바뀌어도 greedMessage() 딱 한군데만 코드를 바꿔주면 된다. <br>
+            또한 제품군이 늘어나더라도, 간단하게 greedMessage()만 추가해주면 모든 제품군이 오타없이 같은 메세지를 보여줄 수 있게 된다. 
+        </li>
+        <li>
+            <h2>try / catch</h2>
+            개발자의 기초 소양 중에 하나이다 ... 미리 에러가 나올만한 상황을 에측해서 에러핸들링을 적절하게 해주는 것이 유저에 대한 예의 .. <br>
+            try { <br>
+                에러가 발생될 수 있는 코드  .. <br>
+            } catch(error) { <br>
+                에러 핸들링 <br>
+            } <br>
+            1. try문 안에 있는 코드를 실행하다가 에러가 나면 
+            2. catch문 안에 들어가서 에러를 실행
+            3. 에러가 없다면 catch문을 무시하고 넘어간다. 
+            4. try / catch는 오직 런타임 에러에만 동작한다. 즉, 실행가능한 코드에만 try / catch가 사용될 수 있다. 
+            5. 만약에 {} 중괄호 짝이 안맞다던지 등등의 문법적인 에러로 돌아가지 않는 코드라면 try / catch가 동작할 수 없다.             
+        </li>
+        <li>
+            <h2>에러 객체 Error</h2>
+            try에서 에러가 생기면 catch 블럭에 error 정보를 error 객체 안에 넣어서 매개변수로 전달해 준다. 
+            Error 객체를 살펴보면 안에 name, message 등 여러 이용가능한 속성값이 있지만, 에러를 보기 위해서는 Error.message만 기억해도 좋다. <br>
+            0
+        </li>
     </ul>    
     <!-- 
         setTimteOut()       : 스택에 들어오자마자 바로 백그라운드(대기실)로 보내진다.
@@ -134,6 +224,7 @@
         4. 데이터를 보여준다.
      -->
     <script>
+        /* 
         console.log(1);        
         setTimeout(() => {
             console.log(2);
@@ -148,6 +239,19 @@
             console.log(i);
         };
         first();
+         */
+
+        //에러 핸들링
+        try {
+            let height = 180;
+            if (height < 175) {
+                throw new Error('작음');
+                // 에러 강제 발생   
+            }
+            // 에러가 생기는 순간 try문 종료 -> catch로 이동
+        } catch(error) {
+            console.log('에러 캐치 ...', error.message);
+        };
     </script>
 </body>
 </html>

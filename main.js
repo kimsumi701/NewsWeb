@@ -6,6 +6,10 @@ let searchBtn = document.getElementById('search-button');
 let url;
 let page = 1;
 let totalPage = 1;
+let searchBox = document.getElementById('active-box');
+let activeBtn = document.getElementById('active-search');
+let searchText = document.getElementById('search-input');
+let clearBtn = document.getElementById('input-clear');
 
 // api 호출
 const getNews = async () => {
@@ -19,10 +23,10 @@ const getNews = async () => {
             if (data.total_hits == 0) {
                 throw new Error('검색된 결과가 없습니다.');
             };
-            totalPage = data.totalPage;
-            page = data.page;
-            render();    
-            pagenation();
+            totalPage = data.total_Page;               
+            page = data.page;                        
+            render();  
+            pagenation();            
         } else {
             throw new Error(data.message);
         };   
@@ -69,7 +73,7 @@ const render = () => {
     </div>`
     }).join('');
     document.getElementById('news-board').innerHTML = newsHTML;
-    document.getElementById('search-input').value = '';
+    document.getElementById('search-input').value = '';    
 };
 // 에러 메세지 발생시
 const errorRender = (message) => {
@@ -85,31 +89,92 @@ const pagenation = () => {
     let pageGroup = Math.ceil(page / 5);
     // 4. 이 그룹을 베이스로 마지막 페이지가 뭔지 찾고,
     let lastPage = pageGroup * 5;
+    // let lastPage = (pageGroup * 5) > totalPage ? totalPage : (pageGroup * 5);
+    // console.log(totalPage)
     // 5. 첫번쨰 페이지가 뭔지를 찾고, 
     let firstPage = lastPage - 4;
     // 6. 첫페이지부터 마지막까지 프린트, 출력해주기
-    let pagenationHTML = ` <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Previous" onclick="moveToPage(${page - 1})">
-                            <span aria-hidden="true">&lt;</span>
+    let pagenationHTML = '';
+
+    if (pageGroup != 1) {
+        pagenationHTML = ` <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous" onclick="moveToPrevPageGroup(${page - 1})">
+                            <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>`;
+    };
+    if (page != 1) {          
+        pagenationHTML += ` <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous" onclick="moveToPage(${page - 1})">
+                        <span aria-hidden="true">&lt;</span>
+                        </a>
+                        </li>`;        
+    };
+
     for (let i = firstPage; i <= lastPage; i++) {
         pagenationHTML += `<li class="page-item ${page == i ? 'active' : ''}"><a class="page-link" href="#" onclick="moveToPage(${i})">${i}</a></li>`;
     };
-    pagenationHTML += ` <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next" onclick="moveToPage(${page + 1})">
-                            <span aria-hidden="true">&gt;</span>
+
+    if (lastPage > 4 && (Math.ceil(totalPage / 5) != Math.ceil(page / 5))) {    
+        pagenationHTML += ` <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next" onclick="moveToPage(${page + 1})">
+                                <span aria-hidden="true">&gt</span>
+                                </a>
+                            </li>`;
+        pagenationHTML += ` <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next" onclick="moveToNextPageGroup(${page + 1})">
+                            <span aria-hidden="true">&raquo;</span>
                             </a>
-                        </li>`;
+                            </li>`;
+    }
     document.querySelector('.pagination').innerHTML = pagenationHTML;
 };
 // 페이지 이동
 const moveToPage = (pageNumber) => {
     // 1. 이동하고 싶은 페이지를 알아야한다.
     // 2. 이 페이지를 가지고, API를 호줄해준다.
-    console.log(pageNumber);
+    // console.log(pageNumber);
     page = pageNumber;
     getNews();
-}
+};
+// 페이지 그룹 이동
+const moveToNextPageGroup = (GroupNumber) => {
+    let pageGroup = Math.ceil(page / 5);
+    let lastPage = pageGroup * 5;
+    page = lastPage + 1;
+    getNews();
+};
+const moveToPrevPageGroup = (GroupNumber) => {
+    let pageGroup = Math.ceil(page / 5);
+    if (pageGroup - 1 != 0) {
+        let lastPage = pageGroup * 5;
+        let firstPage = lastPage - 4;
+        page = firstPage - 5;
+        getNews();
+    };
+};
+// 검색 버튼 active
+const activeSearch = () => {
+    if (searchBox.style.visibility === 'visible') {
+        searchBox.style.visibility = 'hidden';
+    } else {
+        searchBox.style.visibility = 'visible';
+    }  
+};
+const visibleClear = () => {
+    if (searchText.value != '') {
+        clearBtn.style.visibility = 'visible';
+    } else {
+        clearBtn.style.visibility = 'hidden';
+    }
+};
+const inputClear = () => {
+    searchText.value = '';
+    clearBtn.style.visibility = 'hidden';
+};
+activeBtn.addEventListener('click', activeSearch);
+searchText.addEventListener('keydown', visibleClear);
+clearBtn.addEventListener('click', inputClear);
 searchBtn.addEventListener('click', getNewsByKeyword);
 getLatestNews();
+

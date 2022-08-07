@@ -31,3 +31,69 @@
     padding: 1em;
     border-bottom: 2px solid black;
 }
+.page {
+    margin-top: 5px;
+}
+/* 검색 공간*/
+.search-box {
+    display: flex;
+}
+#active-box {
+    display: flex;
+    margin-left: 10px;
+    visibility: hidden;
+}
+#active-search {
+    width: 35px;
+    height: 35px;
+    background: none;
+    border: none;
+}
+#active-search:hover {
+    background-color: #f7f7f7;
+}
+.search-div {
+    position: relative;
+    width: 300px;
+    height: 35px;
+    padding: 5px 5px 10px 7px;
+    border-radius: 4px;
+    border: 1px solid rgb(226, 226, 226);
+}
+#search-input {
+    width: auto;
+    height: 20px;
+    border-color: #f7f7f7;
+    border: none;
+    border-radius: 4px;
+}
+#search-input:focus{
+    outline: none;
+}
+#input-clear {        
+    visibility: hidden;
+    position: absolute;
+    right: 10px;
+    bottom: 6px;
+    width: 50px;
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 12px;
+}
+#search-button {
+    vertical-align: middle;
+    margin-left: 3px;
+    width: 35px;
+    height: 35px;
+    border-radius: 3px;
+    border: 1px solid rgb(50, 104, 145);
+    border-color: #f7f7f7;
+    color: rgb(255, 255, 255);
+    font-size: 13px;
+    font-weight: bold;
+    background-color: rgba(86, 123, 149, 0.5);    
+}
+#search-button:hover {
+    background-color: rgba(86, 123, 149, 0.6)
+}

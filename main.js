@@ -157,8 +157,10 @@ const moveToPrevPageGroup = (GroupNumber) => {
 const activeSearch = () => {
     if (searchBox.style.visibility === 'visible') {
         searchBox.style.visibility = 'hidden';
+        clearBtn.style.visibility = 'inherit';
     } else {
         searchBox.style.visibility = 'visible';
+        visibleClear();
     }  
 };
 const visibleClear = () => {

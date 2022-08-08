@@ -1,3 +1,4 @@
+// API 출처 : https://newscatcherapi.com/
 let articles = [];
 let topic = 'sport';
 let menus = document.querySelectorAll('#menu-list button');
@@ -23,10 +24,11 @@ const getNews = async () => {
             if (data.total_hits == 0) {
                 throw new Error('검색된 결과가 없습니다.');
             };
-            totalPage = data.total_Page;               
-            page = data.page;                        
+            totalPage = data.total_pages;              
+            page = data.page;   
+            console.log(totalPage)
             render();  
-            pagenation();            
+            pagenation();              
         } else {
             throw new Error(data.message);
         };   
@@ -37,12 +39,14 @@ const getNews = async () => {
 }
 // 최신 뉴스 api url
 const getLatestNews = async () => {
+    page = 1;
     url = new URL(`https://api.newscatcherapi.com/v2/latest_headlines?countries=KR&topic=${topic}&page_size=10`);       
     getNews();
 };
 // 최신 뉴스 메뉴(토픽)별 호출
 const getNewsByTopic = (event) => {
     topic = event.target.textContent.toLowerCase();
+    
     getLatestNews();
 };
 // 키워드 검색 api url
@@ -64,10 +68,13 @@ const render = () => {
             alt="뉴스 이미지">
         </div>
         <div class="col-lg-8">
-            <h2>${news.title}</h2>
-            <p>${news.summary == null || news.summary == '' ? '내용 없음' : news.summary.length > 200 ?
-                news.summary.substring(0, 200) + "..." : news.summary
-            }</p>
+            <h2><a href="${news.link}" target="_blank">${news.title}</a></h2>
+            <a href="${news.link}">
+            <p>
+                ${news.summary == null || news.summary == '' ? '내용 없음' : news.summary.length > 200 ?
+                news.summary.substring(0, 200) + "..." : news.summary}
+            </p>
+            </a>
             <div>${news.rights || 'No source'} * ${moment(news.published_date).fromNow()}</div>
         </div>
     </div>`
@@ -89,16 +96,19 @@ const pagenation = () => {
     let pageGroup = Math.ceil(page / 5);
     // 4. 이 그룹을 베이스로 마지막 페이지가 뭔지 찾고,
     let lastPage = pageGroup * 5;
-    // let lastPage = (pageGroup * 5) > totalPage ? totalPage : (pageGroup * 5);
-    // console.log(totalPage)
+    if (lastPage > totalPage) {
+        // last가, 마지막 그룹이 5개 이하라면 ...
+        lastPage = totalPage;
+    };    
     // 5. 첫번쨰 페이지가 뭔지를 찾고, 
     let firstPage = lastPage - 4;
     // 6. 첫페이지부터 마지막까지 프린트, 출력해주기
     let pagenationHTML = '';
 
+
     if (pageGroup != 1) {
         pagenationHTML = ` <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Previous" onclick="moveToPrevPageGroup(${page - 1})">
+                            <a class="page-link" href="#" aria-label="Previous" onclick="moveToPrevPageGroup(${pageGroup})">
                             <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>`;
@@ -115,14 +125,14 @@ const pagenation = () => {
         pagenationHTML += `<li class="page-item ${page == i ? 'active' : ''}"><a class="page-link" href="#" onclick="moveToPage(${i})">${i}</a></li>`;
     };
 
-    if (lastPage > 4 && (Math.ceil(totalPage / 5) != Math.ceil(page / 5))) {    
+    if (lastPage > 4 && lastPage < totalPage) {    
         pagenationHTML += ` <li class="page-item">
                                 <a class="page-link" href="#" aria-label="Next" onclick="moveToPage(${page + 1})">
                                 <span aria-hidden="true">&gt</span>
                                 </a>
                             </li>`;
         pagenationHTML += ` <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next" onclick="moveToNextPageGroup(${page + 1})">
+                            <a class="page-link" href="#" aria-label="Next" onclick="moveToNextPageGroup(${pageGroup})">
                             <span aria-hidden="true">&raquo;</span>
                             </a>
                             </li>`;
@@ -139,19 +149,14 @@ const moveToPage = (pageNumber) => {
 };
 // 페이지 그룹 이동
 const moveToNextPageGroup = (GroupNumber) => {
-    let pageGroup = Math.ceil(page / 5);
-    let lastPage = pageGroup * 5;
+    let lastPage = GroupNumber * 5;
     page = lastPage + 1;
     getNews();
 };
 const moveToPrevPageGroup = (GroupNumber) => {
-    let pageGroup = Math.ceil(page / 5);
-    if (pageGroup - 1 != 0) {
-        let lastPage = pageGroup * 5;
-        let firstPage = lastPage - 4;
-        page = firstPage - 5;
-        getNews();
-    };
+    let firstPage = (GroupNumber - 1) * 5 - 4;
+    page = firstPage;
+    getNews();    
 };
 // 검색 버튼 active
 const activeSearch = () => {
